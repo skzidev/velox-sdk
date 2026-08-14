@@ -1,7 +1,6 @@
-//! A [`std.Io`] implementation for the VEX V5 brain, backed by the VEXos
-//! jumptable exposed by the `velox_jumptable` package.
+//! a [`std.Io`] implementation for the VEX V5 Brain.
 //!
-//! What is supported:
+//! it supports:
 //! * Console I/O (`stdout`, `stderr`, `stdin`) over serial channel 1.
 //! * A single SD-card file at a time, opened with `File.open`, since the
 //!   VEXos jumptable only exposes one open `FIL` handle through this
@@ -18,9 +17,7 @@
 //!   timers at first use. `randomSecure` reports `error.EntropyUnavailable`
 //!   since the jumptable exposes no secure entropy source.
 //!
-//! Everything else (network, process spawning, directory enumeration, file
-//! locking, memory mapping, timestamps) is handled by `std.Io.failing*`,
-//! which returns the most appropriate error for a bare-metal target.
+//! Everything is is stubbed to std.Io.failing*.
 
 const std = @import("std");
 const jmptbl = @import("jumptable.zig");
@@ -156,8 +153,7 @@ fn consoleFile(kind: enum { stdout, stderr, stdin }) std.Io.File {
             .stderr => std.posix.STDERR_FILENO,
             .stdin => std.posix.STDIN_FILENO,
         }
-    else
-        {};
+    else {};
     return .{
         .handle = handle,
         .flags = .{ .nonblocking = false },
@@ -166,7 +162,7 @@ fn consoleFile(kind: enum { stdout, stderr, stdin }) std.Io.File {
 
 fn makeStat(size: u64) std.Io.File.Stat {
     const inode: std.posix.ino_t = if (std.posix.ino_t != void) 0 else {};
-    const nlink: std.posix.nlink_t = if (std.posix.nlink_t != u0) 0 else {};
+    const nlink: std.posix.nlink_t = if (std.posix.nlink_t != u0) 0 else 0;
     return .{
         .inode = inode,
         .nlink = nlink,
@@ -180,8 +176,27 @@ fn makeStat(size: u64) std.Io.File.Stat {
     };
 }
 
+/// VEXos drains the console ring buffer to USB roughly every millisecond,
+/// when the scheduler runs. Sleeping lets the scheduler flush; once the free
+/// space stops growing the buffer is empty.
+fn serialFlush() void {
+    var prev_free: i32 = -1;
+    var stable_samples: u32 = 0;
+    while (stable_samples < 2) {
+        jmptbl.task.vexTaskSleep(1);
+        const free = jmptbl.serial.vexSerialWriteFree(serial_channel);
+        if (free == prev_free) {
+            stable_samples += 1;
+        } else {
+            stable_samples = 0;
+        }
+        prev_free = free;
+    }
+}
+
 /// Writes `data` to the serial console, waiting for free space in the UART
-/// ring buffer as needed. Returns the number of bytes written.
+/// ring buffer as needed, then drains the ring buffer. Returns the number of
+/// bytes written.
 fn serialWriteAll(data: []const u8) error{InputOutput}!usize {
     var written: usize = 0;
     while (written < data.len) {
@@ -197,6 +212,7 @@ fn serialWriteAll(data: []const u8) error{InputOutput}!usize {
         if (n == 0) return written;
         written += @intCast(n);
     }
+    serialFlush();
     return written;
 }
 
