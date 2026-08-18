@@ -1,7 +1,7 @@
 const std = @import("std");
 const peripherals = @import("Peripherals.zig");
 
-pub fn Init(comptime devs: type) type {
+pub fn Init(comptime devs: anytype) type {
     return struct {
         /// A DebugAllocator (formerly GeneralPurposeAllocator) provided for the user's use
         gpa: std.heap.DebugAllocator(.{ .thread_safe = true }),
