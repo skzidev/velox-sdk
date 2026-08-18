@@ -2,4 +2,10 @@
 pub const MotorUnit = enum {
     rpm,
     volts,
+    percent,
+};
+
+pub const TempUnit = enum {
+    celsius,
+    farenheit,
 };

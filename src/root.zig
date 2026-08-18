@@ -15,3 +15,13 @@ pub const Peripherals = @import("Peripherals.zig");
 /// Provides an IO interface which users can use.
 /// An instance of this is provided in the Juicy Main.
 pub const V5Io = io.V5Io;
+
+const motor = @import("devices/Motor.zig");
+
+const devs = struct {
+    motor: type,
+};
+
+pub const devices = devs{
+    .motor = motor.Motor,
+};
