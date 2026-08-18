@@ -34,10 +34,10 @@ pub const BrakeMode = enum(c_int) {
 
 /// Represents a VEX V5 Motor (Both 11w and 5.5w)
 pub const Motor = struct {
-    _handle: ?*anyopaque = null,
+    _handle: ?*anyopaque,
     /// Defines whether this motor is reversed or not
     /// This can be overrided at runtime.
-    isReversed: bool = false,
+    isReversed: bool,
     //// The motor cartridge that is inserted into the motor
     cartridge: MotorCartridge,
     /// Spins the motor at an specified number of specified units.

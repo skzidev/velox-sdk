@@ -9,3 +9,9 @@ pub const TempUnit = enum {
     celsius,
     farenheit,
 };
+
+pub const LengthUnit = enum {
+    inch,
+    millimeter,
+    centimeter,
+};

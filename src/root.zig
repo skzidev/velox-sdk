@@ -17,7 +17,9 @@ pub const Peripherals = @import("Peripherals.zig");
 pub const V5Io = io.V5Io;
 
 const motor = @import("devices/Motor.zig");
+const distance = @import("devices/Distance.zig");
 
 pub const devices = struct {
     pub const Motor = motor.Motor;
+    pub const Distance = distance.Distance;
 };
