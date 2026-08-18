@@ -27,20 +27,14 @@ pub fn Peripherals(comptime config: anytype) type {
         @compileError("Configuration must be a struct");
     }
     const fields = configTInfo.@"struct".fields;
-    comptime var names = [fields.len]0;
-    comptime var types = [fields.len]null;
-    comptime var attrs: [fields.len]std.builtin.Type.StructField.Attributes = undefined;
-    inline for (fields, 0..) |field, i| {
-        names[i] = field.name;
-        attrs[i] = .{ .default_ptr_value = @as(?*const anyopaque, null) };
-        types[i] = field.type;
+    const names: [fields.len]*[]const u8 = [fields.len]*[]const u8{};
+    const types: [fields.len]type = [fields.len]type{};
+    const attrs: [fields.len]std.lang.Type.StructField.Attributes = [fields.len]std.lang.Type.StructField.Attributes{};
+    inline for (fields, 0..) |field, idx| {
+        names[idx] = field.name;
+        types[idx] = getPeripheralType(@field(config, "type"));
+        attrs[idx] = .{};
     }
-    const T = @Struct(
-        std.builtin.Type.ContainerLayout.auto,
-        configTInfo.@"struct".backing_integer,
-        &names,
-        &types,
-        &attrs,
-    );
+    const T = @Struct(.auto, configTInfo.@"struct".backing_integer, &names, &types, &attrs);
     return T;
 }
