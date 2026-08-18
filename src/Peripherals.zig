@@ -29,11 +29,15 @@ pub fn Peripherals(comptime config: anytype) type {
     const fields = configTInfo.@"struct".fields;
     const names: [fields.len][]const u8 = undefined;
     const types: [fields.len]type = undefined;
-    const attrs: [fields.len]std.lang.Type.StructField.Attributes = undefined;
+    const attrs: [fields.len]std.builtin.Type.StructField.Attributes = undefined;
     inline for (fields, 0..) |field, idx| {
         names[idx] = field.name;
         types[idx] = getPeripheralType(@field(config, "type"));
-        attrs[idx] = .{};
+        attrs[idx] = .{
+            .alignment = @alignOf(types[idx]),
+            .is_comptime = false,
+            .default_value = null,
+        };
     }
     const T = @Struct(.auto, configTInfo.@"struct".backing_integer, &names, &types, &attrs);
     return T;
