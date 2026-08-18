@@ -59,16 +59,16 @@ pub const Motor = struct {
         /// The units which the value is in.
         unit: units.MotorUnit,
     ) void {
-        scalar = if (self.isReversed) -scalar else scalar;
+        const speed = if (self.isReversed) -scalar else scalar;
         switch (unit) {
             .rpm => {
-                jmptbl.motor.vexDeviceMotorVelocitySet(self._handle, scalar);
+                jmptbl.motor.vexDeviceMotorVelocitySet(self._handle, speed);
             },
             .volts => {
-                jmptbl.motor.vexDeviceMotorVoltageSet(self._handle, scalar);
+                jmptbl.motor.vexDeviceMotorVoltageSet(self._handle, speed);
             },
             .percent => {
-                jmptbl.motor.vexDeviceMotorVoltageSet(self._handle, (scalar * 127) / 100);
+                jmptbl.motor.vexDeviceMotorVoltageSet(self._handle, (speed * 127) / 100);
             },
         }
     }
@@ -82,7 +82,7 @@ pub const Motor = struct {
         cart: MotorCartridge,
     ) errors.DeviceInitError!Motor {
         if (port < -21 or port > 21 or port == 0)
-            return errors.DeviceError.InvalidPortError;
+            return errors.DeviceInitError.InvalidPortError;
         const handle = jmptbl.devices.vexDeviceGetByIndex(port - 1);
         return Motor{
             ._handle = handle,
