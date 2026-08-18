@@ -68,14 +68,14 @@ pub const Motor = struct {
                 jmptbl.motor.vexDeviceMotorVoltageSet(self._handle, speed);
             },
             .percent => {
-                jmptbl.motor.vexDeviceMotorVoltageSet(self._handle, (speed * 127) / 100);
+                jmptbl.motor.vexDeviceMotorVoltageSet(self._handle, @divTrunc((speed * 127), 100));
             },
         }
     }
 
     pub fn init(
         /// The port # of the device
-        port: i8,
+        port: u32,
         /// Whether the motor shold be reversed
         reversed: bool,
         /// The motor cartridge.
