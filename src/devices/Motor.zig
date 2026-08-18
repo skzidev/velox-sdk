@@ -73,7 +73,7 @@ pub const Motor = struct {
         }
     }
 
-    fn init(
+    pub fn init(
         /// The port # of the device
         port: i8,
         /// Whether the motor shold be reversed
