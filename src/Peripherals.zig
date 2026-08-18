@@ -19,6 +19,7 @@ fn getPeripheralType(comptime dType: DeviceType) type {
     };
 }
 
+/// Provides a "Peripherals" type that allows the user code to have named devices, defined at compile time
 pub fn Peripherals(comptime config: anytype) type {
     const configT = @TypeOf(config);
     const configTInfo = @typeInfo(configT);
@@ -43,5 +44,3 @@ pub fn Peripherals(comptime config: anytype) type {
     );
     return T;
 }
-
-pub fn getPeripherals(config: anytype) Peripherals(config) {}

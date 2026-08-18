@@ -10,10 +10,6 @@ pub const DisplayError = error{
 pub const Display = struct {
     /// Prints a string to the screen on the specified line.
     ///
-    /// **Parameters**:
-    /// - `str` ([]const u8) - _The string which should be printed to the screen._
-    /// - `line` (i32) - _The line which the string should be printed on_
-    ///
     /// **Return Value**: Void
     ///
     /// **Errors**:
@@ -21,9 +17,14 @@ pub const Display = struct {
     ///
     /// For instance:
     /// ```zig
-    /// robot.display.print("Hello, World!", 1);
+    /// velox.display.printOnLine("Hello, World!", 1);
     /// ```
-    pub fn print(str: []const u8, line: i32) DisplayError.InvalidLineError!void {
+    pub fn printOnLine(
+        /// The string which should be printed to the screen.
+        str: []const u8,
+        /// The line which the string should be printed on.
+        line: i32,
+    ) DisplayError.InvalidLineError!void {
         if (line < 0) return DisplayError.InvalidLineError;
         const c_ptr: [*:0]const u8 = @ptrCast(str.ptr);
         jmptbl.display.vexDisplayString(line, c_ptr);
