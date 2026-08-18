@@ -18,10 +18,6 @@ pub const V5Io = io.V5Io;
 
 const motor = @import("devices/Motor.zig");
 
-const devs = struct {
-    motor: type,
-};
-
-pub const devices = devs{
-    .motor = motor.Motor,
+pub const devices = struct {
+    Motor: motor.Motor = motor.Motor,
 };
