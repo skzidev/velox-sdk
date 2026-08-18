@@ -20,10 +20,9 @@
 //! Everything is is stubbed to std.Io.failing*.
 
 const std = @import("std");
-const jmptbl = @import("jumptable.zig");
+const jmptbl = @import("velox_jumptable");
 
-/// The serial channel used for console I/O (vexide uses channel 1 for user
-/// output).
+/// The serial channel used for console I/O
 const serial_channel: u32 = 1;
 
 /// The number of concurrently running tasks in the fixed task slot pool.

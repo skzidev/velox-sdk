@@ -7,8 +7,8 @@
     .minimum_zig_version = "0.16.0",
     .dependencies = .{
         .velox_jumptable = .{
-            .url = "git+https://github.com/skzidev/velox-jumptable#b5d9b552bb69c0b170eb72bb8580287d6919d2cc",
-            .hash = "velox_jumptable-0.0.1-ZP9ZZ6e7BADAxxWKQIYNnjPjiVwPwQOYeVrL2j2al8Hy",
+            .url = "git+https://github.com/skzidev/velox-jumptable#8a619fe255c23c224324c167038c62879a54681d",
+            .hash = "velox_jumptable-0.0.1-ZP9ZZ8zABAD2hXScM_Cj0fFLQTLRo3ldTrVFIZ7Wn6Ci",
         },
     },
     .paths = .{
