@@ -1,6 +1,8 @@
 const std = @import("std");
 const io = @import("./Io.zig");
+const Init = @import("Init.zig");
 
+pub const init = Init.Init;
 pub const Display = @import("display.zig");
 pub const Peripherals = @import("Peripherals.zig");
 pub const V5Io = io.V5Io;

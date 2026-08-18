@@ -19,7 +19,7 @@ fn getPeripheralType(comptime dType: DeviceType) type {
     };
 }
 
-fn Peripherals(comptime config: anytype) type {
+pub fn Peripherals(comptime config: anytype) type {
     const configT = @TypeOf(config);
     const configTInfo = @typeInfo(configT);
     if (!isStruct(configTInfo)) {
