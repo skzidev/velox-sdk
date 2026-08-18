@@ -38,6 +38,12 @@ pub fn build(b: *std.Build) void {
         },
     });
 
+    const lib = b.addLibrary(.{
+        .root_module = mod,
+        .name = "velox-sdk",
+        .linkage = .static,
+    });
+
     const mod_tests = b.addTest(.{
         .root_module = mod,
     });
@@ -53,4 +59,13 @@ pub fn build(b: *std.Build) void {
     const test_step = b.step("test", "Run tests");
     test_step.dependOn(&run_mod_tests.step);
     test_step.dependOn(&run_exe_tests.step);
+
+    // docgen
+    const install_docs = b.addInstallDirectory(.{
+        .source_dir = lib.getEmittedDocs(),
+        .install_dir = .prefix,
+        .install_subdir = "docs",
+    });
+    const docgen = b.step("docs", "Generate HTML docs");
+    docgen.dependOn(&install_docs.step);
 }
