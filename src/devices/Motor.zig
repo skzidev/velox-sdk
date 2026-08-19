@@ -110,7 +110,7 @@ pub const Motor = struct {
     /// Get the temperature of the motor in the specified units
     ///
     /// **Return Value**: The temperature in the specified units.
-    pub fn temperature(
+    pub fn temp(
         self: *Motor,
         /// The units in which the response should be returned
         unit: units.TempUnit,
