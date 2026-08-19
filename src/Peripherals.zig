@@ -11,6 +11,11 @@ fn isStruct(comptime ti: std.builtin.Type) bool {
     };
 }
 
+/// Supported peripheral device types.
+///
+/// Each variant maps to a concrete device driver type:
+/// - `.motor` → [`Motor`](root.Motor)
+/// - `.distance` → [`Distance`](root.Distance)
 const DeviceType = enum {
     motor,
     distance,
@@ -23,7 +28,41 @@ fn getPeripheralType(comptime dType: DeviceType) type {
     };
 }
 
-/// Provides a "Peripherals" type that allows the user code to have named devices, defined at compile time
+/// Builds a struct of typed device handles from a user-supplied
+/// configuration.
+///
+/// `config` must be a struct where each field's name becomes the field name
+/// in the resulting type, and each field must itself be a struct with a
+/// `.type` field whose value is a [`DeviceType`] variant.
+///
+/// The resulting struct can be default-initialized (all fields start as
+/// zeroed memory — you must call `.init()` on each device to make it
+/// usable).
+///
+/// ## Supported device types
+///
+/// | `.type` value | Resulting device type |
+/// |---|---|
+/// | `.motor` | [`velox_sdk.Motor`](root.Motor) |
+/// | `.distance` | [`velox_sdk.Distance`](root.Distance) |
+///
+/// ## Example
+///
+/// ```zig
+/// const MyDevices = struct {
+///     front_left: struct { .type = .motor },
+///     front_right: struct { .type = .motor },
+///     dist_front: struct { .type = .distance },
+/// };
+///
+/// const Devices = velox_sdk.Peripherals(MyDevices);
+/// // Devices has fields: .front_left (Motor), .front_right (Motor),
+/// //                     .dist_front (Distance)
+/// ```
+///
+/// **Compile errors:**
+/// - `config` must be a struct.
+/// - Each field must have a `.type` key that is a valid `DeviceType`.
 pub fn Peripherals(comptime config: anytype) type {
     const configT = @TypeOf(config);
     const configTInfo = @typeInfo(configT);

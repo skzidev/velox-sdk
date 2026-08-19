@@ -278,6 +278,7 @@ fn fileWriteStreaming(
     splat: usize,
 ) (std.Io.Operation.FileWriteStreaming.Error || std.Io.Cancelable)!usize {
     try checkCancelState(currentCancelState());
+    if (data.len <= 0) return std.Io.Operation.FileWriteStreaming.Error;
     if (isConsole(file)) {
         var written: usize = 0;
         written += try serialWriteAll(header);
@@ -339,7 +340,46 @@ fn batchAwaitFallback(self: *V5Io, b: *std.Io.Batch) void {
     b.submitted = .{ .head = .none, .tail = .none };
 }
 
-/// A VEX V5 `std.Io` implementation.
+/// A [`std.Io`] implementation for the VEX V5 Brain.
+///
+/// This type adapts the VEXos firmware jumptable to Zig's standard I/O
+/// interface. It provides:
+///
+/// - **Console I/O** — `stdout`, `stderr`, and `stdin` over serial channel 1.
+///   `stdout` and `stderr` are the same underlying stream.
+/// - **SD-card file I/O** — a single file handle at a time, opened via
+///   [`File.open`]. The VEXos jumptable only exposes one `FIL` handle, so
+///   attempting to open a second file returns `error.DeviceBusy`.
+/// - **Cooperative concurrency** — tasks are spawned through VEXos
+///   (`vexTaskAddWithArg`) using a fixed pool of 16 task slots. There is no
+///   heap on the V5, so all slots are statically allocated.
+/// - **Cancellation** — cooperative: a cancel request is observed at the next
+///   cancellation point (any I/O call that may return `error.Canceled`).
+///   Tasks are never forcibly stopped.
+/// - **Clocks** — `.awake` and `.boot` clocks, derived from
+///   `vexSystemHighResTimeGet` with microsecond resolution. The `.real` and
+///   CPU clocks are unsupported and return the epoch.
+/// - **PRNG** — a shared `xoshiro256**` generator, seeded from hardware
+///   timers on first use. `randomSecure` returns
+///   `error.EntropyUnavailable`.
+///
+/// Everything else is stubbed to `std.Io.failing*` (directories, networking,
+/// processes, memory maps, etc.).
+///
+/// ## Example
+///
+/// ```zig
+/// var app = velox_sdk.Init(MyDevices){};
+///
+/// // Console output
+/// var stdout = app.io.stdout();
+/// _ = try stdout.writeAll("hello from V5\n");
+///
+/// // SD-card file
+/// var file = try velox_sdk.V5Io.File.open(&app.io, "log.txt", .{});
+/// defer velox_sdk.V5Io.File.close(&app.io);
+/// _ = try file.writeAll("data\n");
+/// ```
 pub const V5Io = struct {
     /// Whether the SD card has been mounted with `vexFileMountSD`.
     sd_mounted: bool = false,
@@ -347,27 +387,70 @@ pub const V5Io = struct {
     /// handle at a time.
     sd_file: FilPtr = null,
 
+    /// Provides access to console streams and SD-card file operations.
+    ///
+    /// The V5 Brain exposes a single serial console (channel 1) that serves
+    /// as `stdout`, `stderr`, and `stdin`. For SD-card files, only one file
+    /// handle may be open at a time.
     pub const File = struct {
-        /// The console output stream, used for `printf`-style debugging.
+        /// Returns the console output stream.
+        ///
+        /// On the V5, `stdout` and `stderr` are the same serial channel.
+        /// Data written here is drained to USB by VEXos roughly every
+        /// millisecond.
+        ///
+        /// ```zig
+        /// var stdout = velox_sdk.V5Io.File.stdout();
+        /// _ = try stdout.writeAll("booting...\n");
+        /// ```
         pub fn stdout() std.Io.File {
             return consoleFile(.stdout);
         }
 
-        /// An alias for `stdout`; the V5 has a single console stream.
+        /// Returns the console error stream.
+        ///
+        /// This is an alias for [`stdout`] — the V5 has a single serial
+        /// console channel shared by both.
         pub fn stderr() std.Io.File {
             return consoleFile(.stderr);
         }
 
-        /// The console input stream.
+        /// Returns the console input stream.
+        ///
+        /// Reads from this stream block until data is available over the
+        /// serial connection (e.g. from a VEXcode terminal over USB).
+        ///
+        /// ```zig
+        /// var stdin = velox_sdk.V5Io.File.stdin();
+        /// var buf: [128]u8 = undefined;
+        /// const n = try stdin.read(&buf);
+        /// ```
         pub fn stdin() std.Io.File {
             return consoleFile(.stdin);
         }
 
         /// Opens a file on the SD card.
         ///
-        /// Only one file may be open at a time; a second call while a file is
-        /// open returns `error.DeviceBusy`. The SD card is mounted on first
-        /// use.
+        /// The SD card is mounted automatically on first use. Only one file
+        /// may be open at a time — calling this while a file is already open
+        /// returns `error.DeviceBusy`.
+        ///
+        /// The returned `std.Io.File` handle is suitable for use with any
+        /// `std.Io` file operation (read, write, seek, stat, etc.).
+        ///
+        /// ```zig
+        /// const file = try velox_sdk.V5Io.File.open(
+        ///     &app.io,
+        ///     "data/log.txt",
+        ///     .{ .mode = .read_write },
+        /// );
+        /// defer velox_sdk.V5Io.File.close(&app.io);
+        /// ```
+        ///
+        /// **Errors:**
+        /// - `error.DeviceBusy` — a file is already open.
+        /// - `error.FileNotFound` — the file does not exist (for read modes).
+        /// - `error.NameTooLong` — path exceeds 255 bytes.
         pub fn open(self: *V5Io, path: []const u8, options: std.Io.Dir.OpenFileOptions) std.Io.File.OpenError!std.Io.File {
             if (self.sd_file != null) return error.DeviceBusy;
 
@@ -394,7 +477,12 @@ pub const V5Io = struct {
             };
         }
 
-        /// Closes the SD file, if one is open.
+        /// Closes the currently open SD-card file, if any.
+        ///
+        /// After calling this, the file handle stored internally is cleared,
+        /// allowing a subsequent call to [`open`] to succeed.
+        ///
+        /// This is a no-op if no file is currently open.
         pub fn close(self: *V5Io) void {
             if (self.sd_file) |fil| {
                 jmptbl.file.vexFileClose(fil);
@@ -403,10 +491,26 @@ pub const V5Io = struct {
         }
     };
 
+    /// Creates a new `V5Io` instance with default state (no SD file open).
+    ///
+    /// ```zig
+    /// var v5io = velox_sdk.V5Io.init();
+    /// ```
     pub fn init() V5Io {
         return .{};
     }
 
+    /// Returns a `std.Io` interface backed by this `V5Io` instance.
+    ///
+    /// The returned value can be passed to any function that accepts
+    /// `std.Io`, including the Zig standard library's async I/O facilities.
+    ///
+    /// ```zig
+    /// var v5io = velox_sdk.V5Io.init();
+    /// const stdio = v5io.io();
+    /// var stdout = stdio.stdout();
+    /// _ = try stdout.writeAll("hello\n");
+    /// ```
     pub fn io(self: *V5Io) std.Io {
         return .{
             .userdata = self,
