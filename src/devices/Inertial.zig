@@ -4,15 +4,16 @@ const errors = @import("../error.zig");
 const std = @import("std");
 const pi = std.math.pi;
 
-pub const InertialQuaternion = struct {
-    a: f64,
-    b: f64,
-    c: f64,
-    d: f64,
-};
-
 pub const Inertial = struct {
     _handle: ?*anyopaque,
+
+    pub const InertialQuaternion = struct {
+        x: f64,
+        y: f64,
+        z: f64,
+        w: f64,
+    };
+
     pub fn init(port: u32) Inertial {
         return Inertial{
             ._handle = jmptbl.devices.vexDeviceGetByIndex(port - 1),

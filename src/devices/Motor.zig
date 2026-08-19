@@ -3,45 +3,6 @@ const units = @import("../units.zig");
 const errors = @import("../error.zig");
 const pi = @import("std").math.pi;
 
-/// An enum representing the supported VEX motor cartridges
-pub const MotorCartridge = enum(c_int) {
-    /// ## 36:1 _(100rpm)_
-    /// V5 Red Cartridge (276-5840)
-    red = 0,
-    /// ## 18:1 _(200rpm)_
-    /// V5 Green Cartridge (276-5841)
-    green,
-    /// ## 6:1 _(600rpm)_
-    /// V5 Blue Cartridge (276-5842)
-    blue,
-    _,
-};
-
-pub const MotorKind = enum(c_int) {
-    full = 0,
-    half,
-    _,
-};
-
-/// An enum representing the V5 motor braking modes
-pub const BrakeMode = enum(c_int) {
-    // this MUST BE the same as in the jumptable
-    /// ## Coast Mode
-    /// Provide no active braking.
-    ///
-    /// The motor will be naturally slowed down by friction
-    coast = 0,
-    /// ## Brake Mode
-    /// Provide active braking, but do not hold the motor in its place.
-    ///
-    brake,
-    /// ## Hold mode
-    /// Lock the motor in its current position.
-    ///
-    hold,
-    _,
-};
-
 /// # V5 Smart Motor (11w AND 5.5w)
 ///
 /// Represents Motors:
@@ -49,6 +10,45 @@ pub const BrakeMode = enum(c_int) {
 /// - 11W Smart Motor (276-4840)
 ///
 pub const Motor = struct {
+    /// An enum representing the supported VEX motor cartridges
+    pub const MotorCartridge = enum(c_int) {
+        /// ## 36:1 _(100rpm)_
+        /// V5 Red Cartridge (276-5840)
+        red = 0,
+        /// ## 18:1 _(200rpm)_
+        /// V5 Green Cartridge (276-5841)
+        green,
+        /// ## 6:1 _(600rpm)_
+        /// V5 Blue Cartridge (276-5842)
+        blue,
+        _,
+    };
+
+    pub const MotorKind = enum(c_int) {
+        full = 0,
+        half,
+        _,
+    };
+
+    /// An enum representing the V5 motor braking modes
+    pub const BrakeMode = enum(c_int) {
+        // this MUST BE the same as in the jumptable
+        /// ## Coast Mode
+        /// Provide no active braking.
+        ///
+        /// The motor will be naturally slowed down by friction
+        coast = 0,
+        /// ## Brake Mode
+        /// Provide active braking, but do not hold the motor in its place.
+        ///
+        brake,
+        /// ## Hold mode
+        /// Lock the motor in its current position.
+        ///
+        hold,
+        _,
+    };
+
     _handle: ?*anyopaque,
     /// Defines whether this motor is reversed or not
     /// This can be overrided at runtime.
