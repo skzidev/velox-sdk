@@ -21,8 +21,10 @@ const distance = @import("devices/Distance.zig");
 const adi = @import("devices/ADI.zig");
 const bumper = @import("devices/Bumper.zig");
 const rotational = @import("devices/Rotation.zig");
+const interial = @import("devices/Inertial.zig");
 
 pub const Motor = motor.Motor;
 pub const Distance = distance.Distance;
 pub const ADI = adi.ADI;
 pub const Bumper = bumper.Bumper;
+pub const Rotation = rotational.Rotation;
