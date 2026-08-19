@@ -1,7 +1,15 @@
 const jmptbl = @import("velox_jumptable");
 const units = @import("../units.zig");
 const errors = @import("../error.zig");
-const pi = @import("std").math.pi;
+const std = @import("std");
+const pi = std.math.pi;
+
+pub const InertialQuaternion = struct {
+    a: f64,
+    b: f64,
+    c: f64,
+    d: f64,
+};
 
 pub const Inertial = struct {
     _handle: ?*anyopaque,
@@ -13,6 +21,13 @@ pub const Inertial = struct {
 
     pub fn reset(self: *Inertial) void {
         jmptbl.imu.vexDeviceImuReset(self._handle);
+    }
+
+    pub fn quat(self: *Inertial, alloc: std.mem.Allocator) !InertialQuaternion {
+        const quatPtr = try alloc.alloc(InertialQuaternion, 1);
+        defer alloc.destroy(quatPtr);
+        jmptbl.imu.vexDeviceImuQuaternionGet(self._handle, quatPtr);
+        return quatPtr[0];
     }
 
     pub fn heading(self: *Inertial, unit: units.RotationalUnit) f64 {
