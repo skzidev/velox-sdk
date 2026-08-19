@@ -1,6 +1,8 @@
 const std = @import("std");
 const jmptbl = @import("velox_jumptable");
+
 const motor = @import("devices/Motor.zig");
+const distance = @import("devices/Distance.zig");
 
 fn isStruct(comptime ti: std.builtin.Type) bool {
     return switch (ti) {
@@ -11,11 +13,13 @@ fn isStruct(comptime ti: std.builtin.Type) bool {
 
 const DeviceType = enum {
     motor,
+    distance,
 };
 
 fn getPeripheralType(comptime dType: DeviceType) type {
     return switch (dType) {
         .motor => motor.Motor,
+        .distance => distance.Distance,
     };
 }
 

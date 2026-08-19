@@ -9,7 +9,7 @@ const init = @import("Init.zig");
 // Provides the juicy main Init type for Velox
 pub const Init = init.Init;
 /// Provides access to the display
-pub const Display = @import("display.zig");
+pub const Display = @import("display.zig").Display;
 /// Peripheral management
 pub const Peripherals = @import("Peripherals.zig");
 /// Provides an IO interface which users can use.
@@ -18,8 +18,11 @@ pub const V5Io = io.V5Io;
 
 const motor = @import("devices/Motor.zig");
 const distance = @import("devices/Distance.zig");
+const adi = @import("devices/ADI.zig");
+const bumper = @import("devices/Bumper.zig");
+const rotational = @import("devices/Rotation.zig");
 
-pub const devices = struct {
-    pub const Motor = motor.Motor;
-    pub const Distance = distance.Distance;
-};
+pub const Motor = motor.Motor;
+pub const Distance = distance.Distance;
+pub const ADI = adi.ADI;
+pub const Bumper = bumper.Bumper;

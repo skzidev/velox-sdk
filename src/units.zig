@@ -5,13 +5,23 @@ pub const MotorUnit = enum {
     percent,
 };
 
+/// Units of Temperature
 pub const TempUnit = enum {
     celsius,
-    farenheit,
+    fahrenheit,
 };
 
+/// Units of length/distance
 pub const LengthUnit = enum {
     inch,
+    foot,
     millimeter,
     centimeter,
+};
+
+// Units of rotation
+pub const RotationalUnit = enum {
+    degree,
+    turn,
+    radian,
 };
