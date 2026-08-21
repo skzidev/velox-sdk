@@ -27,23 +27,12 @@
 //! }
 //! ```
 //!
-//! ## Concurrency
-//!
-//! The V5 Brain has no OS — concurrency is cooperative and managed through
-//! the VEXos task scheduler. The [`V5Io`] type wraps this as a
-//! `std.Io`, so standard-library-compatible async primitives (futex,
-//! cancellation, clocks) work out of the box.
-//!
-//! ## Memory
-//!
-//! There is no heap allocator available on the V5. The SDK provides a
-//! [`std.heap.DebugAllocator`] and an [`std.heap.ArenaAllocator`] through
-//! [`Init`], backed by a fixed buffer. All task slots are a pre-allocated
-//! pool of a fixed size (currently 16).
 
 const std = @import("std");
 const io = @import("./Io.zig");
 const init = @import("Init.zig");
+const comp = @import("./comp.zig");
+const controller = @import("controller.zig");
 
 /// The "Juicy Main" init type — the entry point for all Velox user programs.
 ///
@@ -102,6 +91,8 @@ const adi = @import("devices/ADI.zig");
 const bumper = @import("devices/Bumper.zig");
 const rotational = @import("devices/Rotation.zig");
 const inertial = @import("devices/Inertial.zig");
+const pneumatic = @import("devices/Pneumatic.zig");
+const optical = @import("devices/Optical.zig");
 
 /// A VEX V5 Smart Motor (both 11 W and 5.5 W variants).
 ///
@@ -169,3 +160,7 @@ pub const Rotation = rotational.Rotation;
 /// const heading = imu.heading(.degree);
 /// ```
 pub const Inertial = inertial.Inertial;
+
+pub const Pneumatic = pneumatic.Pneumatic;
+
+pub const Controller = controller.Controller;

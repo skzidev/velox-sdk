@@ -278,7 +278,7 @@ fn fileWriteStreaming(
     splat: usize,
 ) (std.Io.Operation.FileWriteStreaming.Error || std.Io.Cancelable)!usize {
     try checkCancelState(currentCancelState());
-    if (data.len <= 0) return error.InvalidInput;
+    if (data.len <= 0) return std.Io.Operation.FileWriteStreaming.Error.Unexpected;
     if (isConsole(file)) {
         var written: usize = 0;
         written += try serialWriteAll(header);
