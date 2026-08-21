@@ -20,9 +20,13 @@ fn isStruct(comptime ti: std.builtin.Type) bool {
 /// Each variant maps to a concrete device driver type:
 /// - `.motor` → [`Motor`](root.Motor)
 /// - `.distance` → [`Distance`](root.Distance)
-const DeviceType = enum {
+pub const DeviceType = enum {
     motor,
     distance,
+    rotation,
+    inertial,
+    adi,
+    bumper,
 };
 
 fn getPeripheralType(comptime dType: DeviceType) type {
