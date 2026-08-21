@@ -86,7 +86,7 @@ pub fn Peripherals(comptime config: anytype) type {
     var attrs: [fields.len]std.builtin.Type.StructField.Attributes = undefined;
     inline for (fields, 0..) |field, idx| {
         names[idx] = field.name;
-        types[idx] = getPeripheralType(@field(@field(config, field.name), "type"));
+        types[idx] = getPeripheralType(@field(@field(config, field.name), "kind"));
         attrs[idx] = .{
             .@"align" = @alignOf(types[idx]),
             .@"comptime" = false,
