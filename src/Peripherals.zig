@@ -36,6 +36,7 @@ fn getPeripheralType(comptime dType: DeviceType) type {
         .inertial => inertial.Inertial,
         .bumper => bumper.Bumper,
         .rotation => rotation.Rotation,
+        .adi => adi.ADI,
     };
 }
 
