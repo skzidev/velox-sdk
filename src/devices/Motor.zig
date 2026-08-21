@@ -306,4 +306,8 @@ pub const Motor = struct {
         }
         jmptbl.motor.vexDeviceMotorPositionSet(self._handle, v);
     }
+
+    pub fn stop(self: *Motor) void {
+        jmptbl.motor.vexDeviceMotorVelocitySet(self._handle, 0);
+    }
 };

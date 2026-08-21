@@ -94,14 +94,10 @@ pub const Inertial = struct {
     /// const q = try imu.quat(allocator);
     /// // q.x, q.y, q.z, q.w
     /// ```
-    ///
-    /// **Errors:**
-    /// - Returns an allocation error if the allocator fails.
-    pub fn quat(self: *Inertial, alloc: std.mem.Allocator) !InertialQuaternion {
-        const quatPtr = try alloc.alloc(InertialQuaternion, 1);
-        defer alloc.destroy(quatPtr);
-        jmptbl.imu.vexDeviceImuQuaternionGet(self._handle, quatPtr);
-        return quatPtr[0];
+    pub fn quat(self: *Inertial) !InertialQuaternion {
+        const quaternion: InertialQuaternion = .{};
+        jmptbl.imu.vexDeviceImuQuaternionGet(self._handle, &quaternion);
+        return quaternion;
     }
 
     /// Returns the sensor's heading (cumulative rotation) in the

@@ -159,3 +159,13 @@ pub const Bumper = bumper.Bumper;
 /// const deg: i32 = rot.angle(.degree);
 /// ```
 pub const Rotation = rotational.Rotation;
+
+/// A VEX V5 Inertial Sensor
+///
+/// Provides heading, acceleration, and rotation functionality.
+///
+/// ```zig
+/// var imu = velox_sdk.Inertial.init(3);
+/// const heading = imu.heading(.degree);
+/// ```
+pub const Inertial = inertial.Inertial;

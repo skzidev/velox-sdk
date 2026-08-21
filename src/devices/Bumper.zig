@@ -1,5 +1,6 @@
 const jmptbl = @import("velox_jumptable");
 const adi = @import("./ADI.zig");
+const errors = @import("../error.zig");
 
 /// A VEX bumper switch sensor, connected via an ADI digital input port.
 ///
@@ -42,8 +43,9 @@ pub const Bumper = struct {
     pub fn init(
         /// The ADI port number (1–8, corresponding to A–H).
         port: u8,
-    ) Bumper {
-        const adiInstance = adi.ADI.init(port, adi.ADIKind.digitalIn);
+        expander: u32,
+    ) errors.DeviceInitError!Bumper {
+        const adiInstance = try adi.ADI.init(port, adi.ADIKind.digitalIn, expander);
         return Bumper{
             ._adi = adiInstance,
         };

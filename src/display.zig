@@ -45,8 +45,8 @@ pub const Display = struct {
     /// ## Example
     ///
     /// ```zig
-    /// velox_sdk.Display.printOnLine("Status: OK", 0);
-    /// velox_sdk.Display.printOnLine("RPM: 200", 3);
+    /// velox_sdk.Display.printOnLine(init.gpa.allocator(), "Status: OK", 0);
+    /// velox_sdk.Display.printOnLine(init.arena.allocator(), "RPM: 200", 3);
     /// ```
     ///
     /// **Errors:**

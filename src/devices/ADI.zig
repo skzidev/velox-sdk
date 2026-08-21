@@ -68,8 +68,6 @@ pub const ADI = struct {
     /// var adi = velox_sdk.ADI.init(1, .digitalIn);
     /// ```
     ///
-    /// **Note:** Currently hardcoded to use the built-in ADI (expander
-    /// index 22). ADI expander support is planned.
     pub fn init(
         /// The ADI port letter (A–H).
         port: u8,

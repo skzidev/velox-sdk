@@ -3,6 +3,10 @@ const jmptbl = @import("velox_jumptable");
 
 const motor = @import("devices/Motor.zig");
 const distance = @import("devices/Distance.zig");
+const adi = @import("devices/ADI.zig");
+const inertial = @import("devices/Inertial.zig");
+const rotation = @import("devices/Rotation.zig");
+const bumper = @import("devices/Bumper.zig");
 
 fn isStruct(comptime ti: std.builtin.Type) bool {
     return switch (ti) {
@@ -25,6 +29,9 @@ fn getPeripheralType(comptime dType: DeviceType) type {
     return switch (dType) {
         .motor => motor.Motor,
         .distance => distance.Distance,
+        .inertial => inertial.Inertial,
+        .bumper => bumper.Bumper,
+        .rotation => rotation.Rotation,
     };
 }
 
