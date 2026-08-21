@@ -2,31 +2,6 @@ const jmptbl = @import("velox_jumptable");
 const std = @import("std");
 const errors = @import("../error.zig");
 
-/// The mode of an ADI (Analog/Digital Interface) port.
-///
-/// ADI ports are configured on the V5 3-wire expander and can operate
-/// as analog or digital inputs or outputs.
-///
-/// | Variant | Description |
-/// |---|---|
-/// | `.analogIn` | Analog input (0–4095, 12-bit ADC) |
-/// | `.analogOut` | Analog output (PWM) |
-/// | `.digitalIn` | Digital input (high/low) |
-/// | `.digitalOut` | Digital output (high/low) |
-/// | `.unknown` | Port not configured (default/uninitialized) |
-pub const ADIKind = enum(c_int) {
-    /// Analog input — reads a 12-bit value (0–4095) from the port.
-    analogIn = 0,
-    /// Analog output — drives a PWM signal on the port.
-    analogOut,
-    /// Digital input — reads a boolean (high/low) from the port.
-    digitalIn,
-    /// Digital output — drives a boolean (high/low) on the port.
-    digitalOut,
-    /// Unknown / unconfigured port state.
-    unknown = 255,
-};
-
 /// A VEX ADI (Analog/Digital Interface) port on the 3-wire expander.
 ///
 /// The ADI provides 8 ports (A–H) that support analog and digital I/O.
@@ -53,6 +28,31 @@ pub const ADIKind = enum(c_int) {
 /// **Note:** ADI expander support is planned but not yet implemented.
 /// Currently, port 22 (the built-in ADI) is always used.
 pub const ADI = struct {
+    /// The mode of an ADI (Analog/Digital Interface) port.
+    ///
+    /// ADI ports are configured on the V5 3-wire expander and can operate
+    /// as analog or digital inputs or outputs.
+    ///
+    /// | Variant | Description |
+    /// |---|---|
+    /// | `.analogIn` | Analog input (0–4095, 12-bit ADC) |
+    /// | `.analogOut` | Analog output (PWM) |
+    /// | `.digitalIn` | Digital input (high/low) |
+    /// | `.digitalOut` | Digital output (high/low) |
+    /// | `.unknown` | Port not configured (default/uninitialized) |
+    pub const ADIKind = enum(c_int) {
+        /// Analog input — reads a 12-bit value (0–4095) from the port.
+        analogIn = 0,
+        /// Analog output — drives a PWM signal on the port.
+        analogOut,
+        /// Digital input — reads a boolean (high/low) from the port.
+        digitalIn,
+        /// Digital output — drives a boolean (high/low) on the port.
+        digitalOut,
+        /// Unknown / unconfigured port state.
+        unknown = 255,
+    };
+
     _expander: ?*anyopaque,
     _port: u32,
     _kind: ADIKind,
